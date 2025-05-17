@@ -9,6 +9,7 @@ App = {
         await App.loadAccount()
         await App.loadContract()
         await App.redner()
+        web3.eth.defaultAccount= App.account
     },
 
     loadWeb3: async () => {
@@ -114,8 +115,13 @@ App = {
             // Show the task
             $newTaskTemplate.show()
         }
+    },
 
-        
+    createTask: async ()=> {
+        App.setLoading(true)
+        const content= $('#newTask').val()
+        await App.todolist.createTask(content)
+        window.location.reload()
     }
 }
 
