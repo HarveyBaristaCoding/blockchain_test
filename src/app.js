@@ -103,7 +103,7 @@ App = {
             $newTaskTemplate.find('input')
                             .prop('name', taskId)
                             .prop('checked', taskCompleted)
-                            .on('click', App.toggleCompleted)
+                            .on('click', App.toggleCompleted) // call app.js toggleCompleted function to call smart contract
 
             // Put the task in the correct list
             if (taskCompleted) {
@@ -120,7 +120,16 @@ App = {
     createTask: async ()=> {
         App.setLoading(true)
         const content= $('#newTask').val()
+        // call smart contract function
         await App.todolist.createTask(content)
+        window.location.reload()
+    },
+
+    toggleCompleted: async (e)=> {
+        App.setLoading(true)
+        const taskId= e.target.name;
+        // call smart contract function
+        await App.todolist.toggleCompleted(taskId)
         window.location.reload()
     }
 }
