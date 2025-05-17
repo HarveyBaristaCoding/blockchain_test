@@ -1,4 +1,5 @@
 App = {
+    loading: false,
     contracts: {},
 
     load: async () => {
@@ -54,7 +55,67 @@ App = {
         App.todolist= await App.contracts.todolist.deployed()
     },
     redner: async () => {
+        // prevent double render
+        if (App.loading) {
+            return
+        }
+        // update app loading state
+        App.setLoading(true)
+
+        // render account
         $('#account').html(App.account)
+
+        // Render tasks
+        await App.renderTasks()
+
+        // update app loading state
+        App.setLoading(false)
+    },
+    setLoading: (boolean) => {
+        App.loading= boolean
+        const loader= $('#loader')
+        const content= $('#content')
+        if (boolean) {
+            loader.show()
+            content.hide()
+        } else {
+            loader.hide()
+            content.show()
+        }
+    },
+    renderTasks: async () => {
+        // Load the total task count from the blockchain
+        const count= await App.todolist.count()
+        const $taskTemplate= $('.taskTemplate')
+
+        // Render out each task with a new task template
+        for (var i= 1; i <= count; i++) {
+            // Fetch the task data from the blockchain
+            const task= await App.todolist.tasks(i) // return an array
+            const taskId= task[0].toNumber()
+            const taskContent= task[1]
+            const taskCompleted= task[2]
+
+            // Create the html for the desk
+            const $newTaskTemplate= $taskTemplate.clone()
+            $newTaskTemplate.find('.content').html(taskContent)
+            $newTaskTemplate.find('input')
+                            .prop('name', taskId)
+                            .prop('checked', taskCompleted)
+                            .on('click', App.toggleCompleted)
+
+            // Put the task in the correct list
+            if (taskCompleted) {
+                $('#completedTaskList').append($newTaskTemplate)
+            } else {
+                $('#taskList').append($newTaskTemplate)
+            }
+
+            // Show the task
+            $newTaskTemplate.show()
+        }
+
+        
     }
 }
 
