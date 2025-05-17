@@ -1,9 +1,13 @@
 App = {
+    contracts: {},
+
     load: async () => {
         // Load app...
         console.log("app laoding...")
         await App.loadWeb3()
         await App.loadAccount()
+        await App.loadContract()
+        await App.redner()
     },
 
     loadWeb3: async () => {
@@ -40,6 +44,17 @@ App = {
     loadAccount: async () => {
         App.account= web3.eth.accounts[0]
         console.log(App.account)
+    },
+    loadContract: async () => {
+        const todolist= await $.getJSON('todolist.json')
+        App.contracts.todolist = TruffleContract(todolist)
+        App.contracts.todolist.setProvider(App.web3Provider)
+        console.log(todolist)
+
+        App.todolist= await App.contracts.todolist.deployed()
+    },
+    redner: async () => {
+        $('#account').html(App.account)
     }
 }
 
